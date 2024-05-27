@@ -4,8 +4,8 @@ import asyncio
 import logging
 import math
 import os
-import tomllib
 import sys
+import tomllib
 
 import aiohttp
 import asyncpg
@@ -15,6 +15,7 @@ from aiohttp import web
 from utils.get_routes import get_module
 from utils.logger import CustomWebLogger
 from utils.pg_pool_middleware import pg_pool_middleware
+from utils.table import Table
 
 LOGFMT = "[%(filename)s][%(asctime)s][%(levelname)s] %(message)s"
 LOGDATEFMT = "%Y/%m/%d-%H:%M:%S"
@@ -59,6 +60,9 @@ api_app = web.Application(
 
 async def startup():
   try:
+    app.config = Table(config)
+    api_app.config = Table(config)
+
     app.POSTGRES_ENABLED = config["postgresql"]["enabled"]
     api_app.POSTGRES_ENABLED = config["postgresql"]["enabled"]
 
@@ -77,7 +81,14 @@ async def startup():
 
     app.LOG = LOG
     api_app.LOG = LOG
-    disabled_cogs: list[str] = []
+    disabled_cogs: list[str] = ["avatar_routes"]
+
+    LOG.info("Loading avatar_routes...")
+    try:
+      lib = get_module("api.avatar_routes")
+      await lib.setup(app)
+    except Exception:
+      LOG.exception("Failed to load avatar_routes!")
 
     for cog in [
         f.replace(".py","") 

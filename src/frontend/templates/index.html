@@ -3,24 +3,59 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generic Template</title>
-    <link rel="stylesheet" href="/css/vendored/bulma.min.css">
+    <title>SkyAvatar</title>
+    <link rel="stylesheet" href="/css/vendored/bulma.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <script src="/js/vendored/sha256.js"></script>
     <script src="/js/common.js" async></script>
-    <script src="/js/index.js" async></script>
+    <script src="/js/index.js" async type="module"></script>
   </head>
   <body>
     <script id="replace_with_navbar" src="/js/nav.js"></script>
-    <div class="tile is-ancestor m-4">
-      <div class="tile" style="height:fit-content">
-        <div class="box">
-          <h1 class="title">Generic Webpage</h1>
-          <p>Placeholder text here</p>
+    <div class="grid p-4">
+      <div class="cell box fit-content">
+        <div class="field">
+          <h1 class="title" id="avatar_for_h1" data-text="Avatar for {0}">Loading...</h1>
+        </div>
+
+        <div class="field">
+          <label class="label is-unselectable">Avatar Type</label>
+          <div class="control">
+            <div class="select">
+              <select id="avatar_type_select" style="width:100%">
+                <option value="0">Default</option>
+                <option value="1">URL</option>
+                <option value="2">Gravatar</option>
+                <option value="3">Retro</option>
+                <option value="4">Identicon</option>
+                <option value="5">MonsterID</option>
+                <option value="6">Wavatar</option>
+                <option value="7">Robohash</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label is-unselectable">Avatar URL</label>
+          <div class="control">
+            <input class="input" type="url" placeholder="https://example.com/image.png" id="avatar_url_text" disabled />
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="control">
+            <button class="button is-success" id="set_avatar_button">Set Avatar</button>
+          </div>
         </div>
       </div>
-      <div class="tile" style="height:fit-content">
-        <div class="box">
-          <h1 class="title" id="db_size">The database is: {0}</h1>
-        </div>
+      <div class="cell box fit-content">
+        <h1 class="title is-3">Current Avatar</h1>
+        <img id="avatar_box" width="320" height="320">
+      </div>
+      <div class="cell box fit-content">
+        <h1 class="title is-3">Preview Avatar</h1>
+        <img id="preview_avatar_box" width="320" height="320">
       </div>
     </div>
     <div style="position:absolute;height:fit-content;bottom:0;width:100%;">

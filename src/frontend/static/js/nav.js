@@ -5,6 +5,7 @@ fetch("/sup/navbar")
   let newelem = document.createElement("div");
   newelem.innerHTML = text;
   oldelem.replaceWith(newelem);
+  get_user_area();
 });
 fetch("/sup/footer")
 .then(res => res.text())
@@ -30,4 +31,24 @@ function toggle_navmenu(burger) {
   let navbar_menu = document.getElementById("navbar_menu");
   navbar_menu.classList.toggle("is-active");
   burger.classList.toggle("is-active");
+}
+
+function get_user_area() {
+  fetch("https://auth.skystuff.cc/api/user/get/", { credentials: "include" })
+    .then(res => {
+      if (res.status == 200) {
+        res.json().then( json => {
+          const navbar_username = document.getElementById("navbar_username");
+          const navbar_avatar = document.getElementById("navbar_avatar");
+
+          navbar_username.innerText = json["name"];
+          navbar_avatar.setAttribute("src", "/avatar/" + json["name"] + "?size=48");
+        });
+      } else {
+        // User isn't logged in
+        window.location.assign("https://auth.skystuff.cc/login?r=https%3A%2F%2Favatar.skystuff.cc%2F");
+      }
+    }).catch(err => {
+      window.location.assign("https://auth.skystuff.cc/login?r=https%3A%2F%2Favatar.skystuff.cc%2F");
+    });
 }
