@@ -4,8 +4,10 @@ from typing import TYPE_CHECKING
 
 from aiohttp import web
 from aiohttp.web import Response
+
+from utils import avatar, gravatar
 from utils.authenticate import authenticate, get_project_status
-from utils import gravatar, avatar
+from utils.cors import add_cors_routes
 
 if TYPE_CHECKING:
   from utils.extra_request import Request
@@ -81,3 +83,4 @@ async def setup(app: web.Application) -> None:
   for route in routes:
     app.LOG.info(f"  ↳ {route}")
   app.add_routes(routes)
+  add_cors_routes(routes, app)

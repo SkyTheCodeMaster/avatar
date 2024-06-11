@@ -4,12 +4,15 @@ from typing import TYPE_CHECKING
 
 from aiohttp import web
 from aiohttp.web import Response
-from utils import avatar, gravatar
+
+from utils import avatar, gravatar, image
+from utils.cors import add_cors_routes
 
 if TYPE_CHECKING:
   from utils.extra_request import Request
 
 routes = web.RouteTableDef()
+cached_default: bytes = None
 
 
 @routes.get("/avatar/{username:.*}")
@@ -48,6 +51,32 @@ async def get_avatar(request: Request) -> Response:
       return Response(status=404)
 
   return Response(body=data, content_type="image/png")
+
+
+@routes.get("/default/")
+async def get_default(request: Request) -> Response:
+  global cached_default
+  query = request.query
+
+  try:
+    _size = int(query.get("size", 80))
+    _size = max(1, min(2000, _size))
+    size = (_size, _size)
+  except ValueError:
+    return Response(status=400, text="size parameter must be integer!")
+
+  if cached_default is None:
+    cached_default = await gravatar.gravatar(
+      "",
+      size=80,
+      default=gravatar.Defaults.MYSTERY,
+      force_default=True,
+      download=True,
+      cs=request.session,
+    )
+
+  output_bytes = await image.resize_image_bytes(cached_default, size)
+  return Response(body=output_bytes, content_type="image/png")
 
 
 @routes.get("/preview/{data:.*}")
@@ -101,3 +130,4 @@ async def setup(app: web.Application) -> None:
   for route in routes:
     app.LOG.info(f"  ↳ {route}")
   app.add_routes(routes)
+  add_cors_routes(routes, app)

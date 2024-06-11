@@ -286,3 +286,68 @@ function format_element_text(element, ...format_args) {
 
   element.innerText = format(element.dataset.text, ...format_args);
 }
+
+/** Get auth token from https://auth.skystuff.cc/.
+ * @param {boolean=true} auto_redirect - Whether or not to automatically redirect to the login page upon 401 response.
+ * @returns {string} Token in Bearer format.
+ * @returns {boolean} False if unknown error while get details.
+ */
+async function get_auth_token(auto_redirect = true) {
+  try {
+    let user_request = await fetch("https://auth.skystuff.cc/api/user/get/", { credentials: "include" });
+    if (user_request.status === 401) {
+      if (auto_redirect) {
+        let new_url = "https://auth.skystuff.cc/login?r=" + encodeURIComponent(window.location.href);
+        window.location.assign(new_url);
+      } else {
+        console.log("[get_auth_token] received http 401");
+        return false;
+      }
+    } else if (user_request.status === 200) {
+      let data = await user_request.json();
+      // Now, just return the token in Bearer format.
+      return "Bearer " + data["token"];
+    } else {
+      console.log("[get_auth_token] received http " + user_request.status + ": " + await user_request.text());
+    }
+  } catch (e) {
+    console.error("[get_auth_token] unknown error: " + e);
+    return false;
+  }
+}
+
+/** User Details object from auth.skystuff.cc/api/user/get/
+ * @typedef {Object} UserDetails
+ * @property {string} name - Username of user.
+ * @property {string} email - Email of user.
+ * @property {string} token - Token of user.
+ * @property {boolean} super_admin - Whether or not the user is a super admin on the SSO.
+ */
+
+/** Get user details from https://auth.skystuff.cc/.
+ * @param {boolean = true} auto_redirect - Whether or not to automatically redirect to the login page upon 401 response.
+ * @returns {UserDetails}
+ * @returns {boolean} False if unknown error while get details.
+ */
+async function get_user_details(auto_redirect = true) {
+  try {
+    let user_request = await fetch("https://auth.skystuff.cc/api/user/get/", { credentials: "include" });
+    if (user_request.status === 401) {
+      if (auto_redirect) {
+        let new_url = "https://auth.skystuff.cc/login?r=" + encodeURIComponent(window.location.href);
+        window.location.assign(new_url);
+      } else {
+        console.log("[get_user_details] received http 401");
+        return false;
+      }
+    } else if (user_request.status === 200) {
+      let data = await user_request.json();
+      return data;
+    } else {
+      console.log("[get_user_details] received http " + user_request.status + ": " + await user_request.text());
+    }
+  } catch (e) {
+    console.error("[get_user_details] unknown error: " + e);
+    return false;
+  }
+}

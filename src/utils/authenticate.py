@@ -1,7 +1,9 @@
 # Handle authentication and request verification
 from __future__ import annotations
 
+import hashlib
 import json
+import time
 from enum import Enum
 from typing import TYPE_CHECKING
 
@@ -35,9 +37,13 @@ class User:
     self.token = token
 
 
+# Hashed auth token -> user, expiry
+auth_cache: dict[str, tuple[User, int]] = {}
+
+
 # All this does is authenticate a user existing.
 async def authenticate(
-  request: Request, *, cs: ClientSession = None
+  request: Request, *, cs: ClientSession = None, use_cache=True
 ) -> User | Response:
   app: Application = request.app
   if cs is None:
@@ -54,6 +60,15 @@ async def authenticate(
 
   auth_token = auth_token.removeprefix("Bearer ")
 
+  # Get the hash of it for cache checking
+  if use_cache:
+    token_hash = hashlib.sha512(auth_token.encode()).hexdigest()
+    if token_hash in auth_cache:
+      details = auth_cache[token_hash]
+      current_time = time.time()
+      if current_time < details[1]:
+        return details[0]
+
   # Now we want to send the request
   # Removing and adding Bearer is mildly redundant
   headers = {"Authorization": f"Bearer {auth_token}"}
@@ -69,6 +84,11 @@ async def authenticate(
         email=data["email"],
         token=data["token"],
       )
+
+      token_hash = hashlib.sha512(auth_token.encode()).hexdigest()
+      current_time = time.time()
+      auth_cache[token_hash] = (u, current_time + 600)
+
       return u
     else:
       return Response(status=401, body="invalid token")

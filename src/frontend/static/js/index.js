@@ -22,17 +22,11 @@ async function hash(email) {
 
 async function setup() {
   try {
-    let request = await fetch("https://auth.skystuff.cc/api/user/get/", { credentials: "include" });
-    if (request.status != 200) {
-      console.error(await request.text());
-      throw new Error(request.status);
-    }
-    let data = await request.json();
-    user_details = data;
+    user_details = await get_user_details(false);
 
     const avatar_box = document.getElementById("avatar_box");
-    avatar_box.setAttribute("src",format("/avatar/{0}", data["name"]));
-    format_element_text("avatar_for_h1", data["name"]);
+    avatar_box.setAttribute("src",format("/avatar/{0}?size=320", user_details["name"]));
+    format_element_text("avatar_for_h1", user_details["name"]);
 
   } catch (e) {
     show_popup("Failed to load user!", true, 5000);
@@ -50,10 +44,12 @@ async function setup() {
       avatar_url_text.removeAttribute("disabled");
     } else {
       avatar_url_text.setAttribute("disabled",true);
-      preview_avatar_box.setAttribute("src", format("/preview/{0}?size=320&style={1}", hashed_email, AvatarType[avatar_type_select.value]))
+      preview_avatar_box.setAttribute("src", format("/preview/{0}?size=320&type={1}", hashed_email, AvatarType[avatar_type_select.value]))
     }
 
   });
+
+  preview_avatar_box.setAttribute("src", format("/preview/{0}?size=320&type={1}", hashed_email, AvatarType[avatar_type_select.value]))
 
   const set_avatar_button = document.getElementById("set_avatar_button");
   set_avatar_button.onclick = async function() { await set_avatar(set_avatar_button); }
@@ -84,7 +80,7 @@ async function set_avatar(button) {
     if (request.status == 200) {
       show_popup("Set avatar!", false, 5000);
     } else {
-      show_popup("Failed to set avatar.", true, 5000);
+      show_popup("Failed to set avatar. HTTP" + request.status, true, 5000);
     }
   } catch (e) {
     show_popup("Failed to set avatar! " + e, true, 5000);
