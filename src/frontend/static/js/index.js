@@ -44,7 +44,7 @@ async function setup() {
       avatar_url_text.removeAttribute("disabled");
     } else {
       avatar_url_text.setAttribute("disabled",true);
-      preview_avatar_box.setAttribute("src", format("/preview/{0}?size=320&type={1}", hashed_email, AvatarType[avatar_type_select.value]))
+      preview_avatar_box.setAttribute("src", format("/preview/{0}?size=320&style={1}", hashed_email, AvatarType[avatar_type_select.value]))
     }
 
   });

@@ -4,7 +4,6 @@ import asyncio
 import logging
 import math
 import os
-import sys
 import tomllib
 
 import aiohttp
