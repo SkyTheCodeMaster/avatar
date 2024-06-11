@@ -15,6 +15,8 @@ def add_cors(request: Request, response: Response) -> None:
     response.headers.add("Access-Control-Allow-Credentials", "true")
   if response.headers.get("Access-Control-Allow-Methods", None) is None:
     response.headers.add("Access-Control-Allow-Methods", "GET")
+  if response.headers.get("Access-Control-Allow-Headers", None) is None:
+    response.headers.add("Access-Control-Allow-Headers", "Authorization")
 
 @middleware
 async def cors_middleware(request: Request, handler):
