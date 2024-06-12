@@ -46,9 +46,9 @@ function get_user_area() {
         });
       } else {
         // User isn't logged in
-        //window.location.assign("https://auth.skystuff.cc/login?r=https%3A%2F%2Favatar.skystuff.cc%2F");
+        window.location.assign("https://auth.skystuff.cc/login?r=https%3A%2F%2Favatar.skystuff.cc%2F");
       }
     }).catch(err => {
-      //window.location.assign("https://auth.skystuff.cc/login?r=https%3A%2F%2Favatar.skystuff.cc%2F");
+      window.location.assign("https://auth.skystuff.cc/login?r=https%3A%2F%2Favatar.skystuff.cc%2F");
     });
 }
